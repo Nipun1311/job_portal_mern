@@ -16,15 +16,19 @@ import JobController from "./src/controllers/job.controller.js";
 import { jobs } from "./src/models/job.model.js";
 
 const app = express();
-const port = 3500;
+
+// ✅ FIX 1: Use dynamic PORT (REQUIRED for deployment)
+const port = process.env.PORT || 3500;
 
 // setup static file serving
 app.use(express.static("public"));
+
 // setup body parser
 app.use(bodyParser.json());
 
 // setup cookie parser
 app.use(cookieParser());
+
 // setup session
 app.use(
   session({
@@ -41,44 +45,42 @@ app.use(express.urlencoded({ extended: true }));
 //setup view engine settings
 app.set("view engine", "ejs");
 app.set("views", path.join(path.resolve(), "src", "views"));
-//setup ejs layouts
-// app.use(ejsLayouts);
 
-// //Routes for user related operations
+// Routes for user related operations
 app.post("/register", UserController.createUser);
 app.post("/login", UserController.loginUser);
 app.get("/logout", UserController.logoutUser);
 app.get("/users", UserController.showUsers);
 
-//Routes for job related operations
+// Routes for job related operations
 app.get("/jobs", JobController.getJobs);
 app.get("/job/:id", JobController.getJobById);
 
-//Routes for searching a job based on the job designation(i.e. role) or comapny name
+// Routes for searching jobs
 app.post("/search", JobController.searchJob);
 
-//Rotes for posting a new job
+// Routes for posting a new job
 app.get("/postjob", basicAuth, JobController.getAddJob);
 app.post("/postjob", basicAuth, JobController.postjob);
 
-//Routes for editing a job
+// Routes for editing a job
 app.get("/edit/:id", basicAuth, JobController.getEditJob);
 app.post("/edit/:id", basicAuth, JobController.postEditJob);
 
-//Routes for deleting a job
+// Routes for deleting a job
 app.get("/delete/:id", basicAuth, JobController.deleteJobById);
 
-//Routes for applying for a job
+// Routes for applying for a job
 app.get("/apply/:id", JobController.getApplyJob);
 app.post("/apply/:id", upload.single("resume"), JobController.applyJob);
 
-//Routes for getting applicants for a job
+// Routes for getting applicants
 app.get("/applicants/:id", JobController.getApplicants);
 
-//Routes for deleting applicants for a job
+// Routes for deleting applicants
 app.get("/delete-applicant/:id", basicAuth, JobController.deleteApplicantById);
 
-//Route for root page
+// Route for root page
 app.get("/", (req, res) => {
   res.render("index", {
     jobs: jobs,
@@ -87,7 +89,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// start the server
+// ✅ FIX 2: Listen on dynamic port
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
